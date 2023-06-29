@@ -1,18 +1,18 @@
 import { Conversation, Message } from '@/types/chat';
 import { ErrorMessage } from '@/types/error';
 import { FolderInterface } from '@/types/folder';
-import { OpenAIModel, OpenAIModelID } from '@/types/openai';
-import { PluginKey } from '@/types/plugin';
+// import { OpenAIModel, OpenAIModelID } from '@/types/openai';
+// import { PluginKey } from '@/types/plugin';
 import { Prompt } from '@/types/prompt';
 
 export interface HomeInitialState {
-  apiKey: string;
-  pluginKeys: PluginKey[];
+  // apiKey: string;
+  // pluginKeys: PluginKey[];
   loading: boolean;
   lightMode: 'light' | 'dark';
   messageIsStreaming: boolean;
   modelError: ErrorMessage | null;
-  models: OpenAIModel[];
+  // models: OpenAIModel[];
   folders: FolderInterface[];
   conversations: Conversation[];
   selectedConversation: Conversation | undefined;
@@ -24,19 +24,19 @@ export interface HomeInitialState {
   currentFolder: FolderInterface | undefined;
   messageError: boolean;
   searchTerm: string;
-  defaultModelId: OpenAIModelID | undefined;
-  serverSideApiKeyIsSet: boolean;
-  serverSidePluginKeysSet: boolean;
+  // defaultModelId: OpenAIModelID | undefined;
+  // serverSideApiKeyIsSet: boolean;
+  // serverSidePluginKeysSet: boolean;
 }
 
 export const initialState: HomeInitialState = {
-  apiKey: '',
+  // apiKey: '',
   loading: false,
-  pluginKeys: [],
+  // pluginKeys: [],
   lightMode: 'dark',
   messageIsStreaming: false,
   modelError: null,
-  models: [],
+  // models: [],
   folders: [],
   conversations: [],
   selectedConversation: undefined,
@@ -48,7 +48,7 @@ export const initialState: HomeInitialState = {
   currentFolder: undefined,
   messageError: false,
   searchTerm: '',
-  defaultModelId: undefined,
-  serverSideApiKeyIsSet: false,
-  serverSidePluginKeysSet: false,
+  // defaultModelId: undefined,
+  // serverSideApiKeyIsSet: false,
+  // serverSidePluginKeysSet: false,
 };

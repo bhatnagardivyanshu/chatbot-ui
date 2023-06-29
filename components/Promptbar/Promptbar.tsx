@@ -5,7 +5,7 @@ import { useCreateReducer } from '@/hooks/useCreateReducer';
 
 import { savePrompts } from '@/utils/app/prompts';
 
-import { OpenAIModels } from '@/types/openai';
+// import { OpenAIModels } from '@/types/openai';
 import { Prompt } from '@/types/prompt';
 
 import HomeContext from '@/pages/api/home/home.context';
@@ -28,7 +28,8 @@ const Promptbar = () => {
   });
 
   const {
-    state: { prompts, defaultModelId, showPromptbar },
+    // state: { prompts, defaultModelId, showPromptbar },
+    state: { prompts, showPromptbar },
     dispatch: homeDispatch,
     handleCreateFolder,
   } = useContext(HomeContext);
@@ -44,13 +45,13 @@ const Promptbar = () => {
   };
 
   const handleCreatePrompt = () => {
-    if (defaultModelId) {
+    // if (defaultModelId) {
       const newPrompt: Prompt = {
         id: uuidv4(),
         name: `Prompt ${prompts.length + 1}`,
         description: '',
         content: '',
-        model: OpenAIModels[defaultModelId],
+        // model: OpenAIModels[defaultModelId],
         folderId: null,
       };
 
@@ -60,7 +61,7 @@ const Promptbar = () => {
 
       savePrompts(updatedPrompts);
     }
-  };
+  // };
 
   const handleDeletePrompt = (prompt: Prompt) => {
     const updatedPrompts = prompts.filter((p) => p.id !== prompt.id);

@@ -46,7 +46,7 @@ export const SystemPrompt: FC<Props> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    const maxLength = conversation.model.maxLength;
+    const maxLength = 200;
 
     if (value.length > maxLength) {
       alert(
@@ -210,7 +210,7 @@ export const SystemPrompt: FC<Props> = ({
           }`,
         }}
         placeholder={
-          t(`Enter a prompt or type "/" to select a prompt...`) || ''
+          t(`Enter a prompt`) || ''
         }
         value={t(value) || ''}
         rows={1}

@@ -20,20 +20,20 @@ export const ChatbarSettings = () => {
 
   const {
     state: {
-      apiKey,
-      lightMode,
-      serverSideApiKeyIsSet,
-      serverSidePluginKeysSet,
+      // apiKey,
+      // lightMode,
+      // serverSideApiKeyIsSet,
+      // serverSidePluginKeysSet,
       conversations,
     },
-    dispatch: homeDispatch,
+    // dispatch: homeDispatch,
   } = useContext(HomeContext);
 
   const {
     handleClearConversations,
     handleImportConversations,
     handleExportData,
-    handleApiKeyChange,
+    // handleApiKeyChange,
   } = useContext(ChatbarContext);
 
   return (
@@ -50,24 +50,23 @@ export const ChatbarSettings = () => {
         onClick={() => handleExportData()}
       />
 
-      <SidebarButton
+      {/* <SidebarButton
         text={t('Settings')}
         icon={<IconSettings size={18} />}
         onClick={() => setIsSettingDialog(true)}
-      />
+      /> */}
 
-      {!serverSideApiKeyIsSet ? (
+      {/* {!serverSideApiKeyIsSet ? (
         <Key apiKey={apiKey} onApiKeyChange={handleApiKeyChange} />
       ) : null}
 
-      {!serverSidePluginKeysSet ? <PluginKeys /> : null}
+      {!serverSidePluginKeysSet ? <PluginKeys /> : null} */}
 
-      <SettingDialog
-        open={isSettingDialogOpen}
+      {/* <SettingDialog open={isSettingDialogOpen}
         onClose={() => {
           setIsSettingDialog(false);
         }}
-      />
+      /> */}
     </div>
   );
 };
