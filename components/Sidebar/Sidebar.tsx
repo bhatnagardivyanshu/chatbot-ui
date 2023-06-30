@@ -21,7 +21,7 @@ interface Props<T> {
   handleSearchTerm: (searchTerm: string) => void;
   toggleOpen: () => void;
   handleCreateItem: () => void;
-  handleCreateFolder: () => void;
+  // handleCreateFolder: () => void;
   handleDrop: (e: any) => void;
 }
 
@@ -37,7 +37,7 @@ const Sidebar = <T,>({
   handleSearchTerm,
   toggleOpen,
   handleCreateItem,
-  handleCreateFolder,
+  // handleCreateFolder,
   handleDrop,
 }: Props<T>) => {
   const { t } = useTranslation('promptbar');

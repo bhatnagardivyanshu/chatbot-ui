@@ -139,7 +139,7 @@ export const ConversationComponent = ({ conversation }: Props) => {
         </button>
       )}
 
-      {(isDeleting || isRenaming) &&
+      {/* {(isDeleting || isRenaming) &&
         selectedConversation?.id === conversation.id && (
           <div className="absolute right-1 z-10 flex text-gray-300">
             <SidebarActionButton handleClick={handleConfirm}>
@@ -149,7 +149,7 @@ export const ConversationComponent = ({ conversation }: Props) => {
               <IconX size={18} />
             </SidebarActionButton>
           </div>
-        )}
+        )} */}
 
       {selectedConversation?.id === conversation.id &&
         !isDeleting &&

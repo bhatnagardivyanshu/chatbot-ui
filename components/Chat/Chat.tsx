@@ -28,11 +28,12 @@ import HomeContext from '@/pages/api/home/home.context';
 import Spinner from '../Spinner';
 import { ChatInput } from './ChatInput';
 import { ChatLoader } from './ChatLoader';
+import { ChatMessage } from './ChatMessage';
 import { ErrorMessageDiv } from './ErrorMessageDiv';
 import { ModelSelect } from './ModelSelect';
 import { SystemPrompt } from './SystemPrompt';
 import { TemperatureSlider } from './Temperature';
-import { MemoizedChatMessage } from './MemoizedChatMessage';
+import { SocketMessageReceived, onIncomingMessage, sendMessage } from '@/utils/app/socket';
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>;
@@ -49,7 +50,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       // apiKey,
       // pluginKeys,
       // serverSideApiKeyIsSet,
-      messageIsStreaming,
+      // messageIsStreaming,
       modelError,
       loading,
       prompts,
@@ -68,180 +69,233 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const handleResponse = useCallback(({ question, answer }: SocketMessageReceived) => {
+    // console.log('client pr response', { question, answer })
+
+    // console.log('2.\n'.repeat(5), selectedConversation);
+
+    if (!selectedConversation) {
+      console.log('NO CONV SELECTED')
+      return;
+    }
+
+    const message: Message = { role: 'assistant', content: answer }
+    let updatedConversation = {
+      ...selectedConversation,
+      messages: [...selectedConversation.messages, message],
+    };
+
+    // =======
+    homeDispatch({
+      field: 'selectedConversation',
+      value: updatedConversation,
+    });
+    saveConversation(updatedConversation);
+
+    const updatedConversations: Conversation[] = conversations.map(
+      (conversation) => {
+        if (conversation.id === selectedConversation.id) {
+          return updatedConversation;
+        }
+        return conversation;
+      },
+    );
+
+    if (updatedConversations.length === 0) {
+      updatedConversations.push(updatedConversation);
+    }
+
+    homeDispatch({ field: 'conversations', value: updatedConversations });
+    saveConversations(updatedConversations);
+    // =======
+
+    // ----
+
+    // homeDispatch({
+    //   field: 'selectedConversation',
+    //   value: updatedConversation,
+    // });
+
+
+    // saveConversation(updatedConversation);
+
+    // homeDispatch({
+    //   field: 'selectedConversation',
+    //   value: updatedConversation,
+    // });
+
+
+    // sendMessage(message.content, selectedConversation.id)
+    // const updatedConversation = {
+    //   ...selectedConversation,
+    //   messages: [...selectedConversation.messages, message],
+    // };
+    // console.log('=======', updatedConversation)
+
+    // homeDispatch({
+    //   field: 'selectedConversation',
+    //   value: updatedConversation,
+    // });
+
+    // // @ts-ignore
+    // saveConversation(updatedConversation);
+  }, [selectedConversation])
+
+  useEffect(() => {
+    console.log('setting up socket listener')
+    const cleanUp = onIncomingMessage(handleResponse);
+    return () => {
+      console.log('cleaning up socket listener')
+      cleanUp();
+    };
+  }, [selectedConversation, conversations, stopConversationRef])
+
+
   const handleSend = useCallback(
     async (message: Message, deleteCount = 0, plugin: Plugin | null = null) => {
       if (selectedConversation) {
-        let updatedConversation: Conversation;
-        if (deleteCount) {
-          const updatedMessages = [...selectedConversation.messages];
-          for (let i = 0; i < deleteCount; i++) {
-            updatedMessages.pop();
-          }
-          updatedConversation = {
-            ...selectedConversation,
-            messages: [...updatedMessages, message],
-          };
-        } else {
-          updatedConversation = {
-            ...selectedConversation,
-            messages: [...selectedConversation.messages, message],
-          };
-        }
+        let updatedConversation = {
+          ...selectedConversation,
+          messages: [...selectedConversation.messages, message],
+        };
+
+        console.log('1.\n'.repeat(5), { selectedConversation, updatedConversation });
+
         homeDispatch({
           field: 'selectedConversation',
           value: updatedConversation,
         });
-        homeDispatch({ field: 'loading', value: true });
-        homeDispatch({ field: 'messageIsStreaming', value: true });
-        const chatBody: ChatBody = {
-          // model: updatedConversation.model,
-          messages: updatedConversation.messages,
-          // key: apiKey,
-          prompt: updatedConversation.prompt,
-          temperature: updatedConversation.temperature,
-        };
-        const endpoint = getEndpoint(plugin);
-        let body;
-        // if (!plugin) {
-        //   body = JSON.stringify(chatBody);
-        // } else {
-        //   body = JSON.stringify({
-        //     ...chatBody,
-        //     googleAPIKey: pluginKeys
-        //       .find((key) => key.pluginId === 'google-search')
-        //       ?.requiredKeys.find((key) => key.key === 'GOOGLE_API_KEY')?.value,
-        //     googleCSEId: pluginKeys
-        //       .find((key) => key.pluginId === 'google-search')
-        //       ?.requiredKeys.find((key) => key.key === 'GOOGLE_CSE_ID')?.value,
-        //   });
-        // }
-        const controller = new AbortController();
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        saveConversation(updatedConversation);
+
+
+        console.log(1010, { conversations });
+
+        const updatedConversations: Conversation[] = conversations.map(
+          (conversation) => {
+            if (conversation.id === selectedConversation.id) {
+              return updatedConversation;
+            }
+            return conversation;
           },
-          signal: controller.signal,
-          body,
-        });
-        if (!response.ok) {
-          homeDispatch({ field: 'loading', value: false });
-          homeDispatch({ field: 'messageIsStreaming', value: false });
-          toast.error(response.statusText);
-          return;
+        );
+
+        if (updatedConversations.length === 0) {
+          updatedConversations.push(updatedConversation);
         }
-        const data = response.body;
-        if (!data) {
-          homeDispatch({ field: 'loading', value: false });
-          homeDispatch({ field: 'messageIsStreaming', value: false });
-          return;
-        }
+
+        homeDispatch({ field: 'conversations', value: updatedConversations });
+        saveConversations(updatedConversations);
+
+        console.log('->\n'.repeat(5), { selectedConversation, updatedConversation });
+
+        sendMessage(message.content, selectedConversation.id)
+
         if (!plugin) {
-          if (updatedConversation.messages.length === 1) {
-            const { content } = message;
-            const customName =
-              content.length > 30 ? content.substring(0, 30) + '...' : content;
-            updatedConversation = {
-              ...updatedConversation,
-              name: customName,
-            };
-          }
-          homeDispatch({ field: 'loading', value: false });
-          const reader = data.getReader();
-          const decoder = new TextDecoder();
-          let done = false;
-          let isFirst = true;
-          let text = '';
-          while (!done) {
-            if (stopConversationRef.current === true) {
-              controller.abort();
-              done = true;
-              break;
-            }
-            const { value, done: doneReading } = await reader.read();
-            done = doneReading;
-            const chunkValue = decoder.decode(value);
-            text += chunkValue;
-            if (isFirst) {
-              isFirst = false;
-              const updatedMessages: Message[] = [
-                ...updatedConversation.messages,
-                { role: 'assistant', content: chunkValue },
-              ];
-              updatedConversation = {
-                ...updatedConversation,
-                messages: updatedMessages,
-              };
-              homeDispatch({
-                field: 'selectedConversation',
-                value: updatedConversation,
-              });
-            } else {
-              const updatedMessages: Message[] =
-                updatedConversation.messages.map((message, index) => {
-                  if (index === updatedConversation.messages.length - 1) {
-                    return {
-                      ...message,
-                      content: text,
-                    };
-                  }
-                  return message;
-                });
-              updatedConversation = {
-                ...updatedConversation,
-                messages: updatedMessages,
-              };
-              homeDispatch({
-                field: 'selectedConversation',
-                value: updatedConversation,
-              });
-            }
-          }
-          saveConversation(updatedConversation);
-          const updatedConversations: Conversation[] = conversations.map(
-            (conversation) => {
-              if (conversation.id === selectedConversation.id) {
-                return updatedConversation;
-              }
-              return conversation;
-            },
-          );
-          if (updatedConversations.length === 0) {
-            updatedConversations.push(updatedConversation);
-          }
-          homeDispatch({ field: 'conversations', value: updatedConversations });
-          saveConversations(updatedConversations);
-          homeDispatch({ field: 'messageIsStreaming', value: false });
+          // if (updatedConversation.messages.length === 1) {
+          //   const { content } = message;
+          //   const customName =
+          //     content.length > 30 ? content.substring(0, 30) + '...' : content;
+          //   updatedConversation = {
+          //     ...updatedConversation,
+          //     name: customName,
+          //   };
+          // }
+          // homeDispatch({ field: 'loading', value: false });
+          // const reader = data.getReader();
+          // const decoder = new TextDecoder();
+          // let done = false;
+          // let isFirst = true;
+          // let text = '';
+          // while (!done) {
+          //   if (stopConversationRef.current === true) {
+          //     controller.abort();
+          //     done = true;
+          //     break;
+          //   }
+          //   const { value, done: doneReading } = await reader.read();
+          //   done = doneReading;
+          //   const chunkValue = decoder.decode(value);
+          //   text += chunkValue;
+          //   if (isFirst) {
+          //     isFirst = false;
+          //     const updatedMessages: Message[] = [
+          //       ...updatedConversation.messages,
+          //       { role: 'assistant', content: chunkValue },
+          //     ];
+          //     updatedConversation = {
+          //       ...updatedConversation,
+          //       messages: updatedMessages,
+          //     };
+          //     homeDispatch({
+          //       field: 'selectedConversation',
+          //       value: updatedConversation,
+          //     });
+          //   } else {
+          //     const updatedMessages: Message[] =
+          //       updatedConversation.messages.map((message, index) => {
+          //         if (index === updatedConversation.messages.length - 1) {
+          //           return {
+          //             ...message,
+          //             content: text,
+          //           };
+          //         }
+          //         return message;
+          //       });
+          //     updatedConversation = {
+          //       ...updatedConversation,
+          //       messages: updatedMessages,
+          //     };
+          //     homeDispatch({
+          //       field: 'selectedConversation',
+          //       value: updatedConversation,
+          //     });
+          //   }
+          // }
+          // saveConversation(updatedConversation);
+          // const updatedConversations: Conversation[] = conversations.map(
+          //   (conversation) => {
+          //     if (conversation.id === selectedConversation.id) {
+          //       return updatedConversation;
+          //     }
+          //     return conversation;
+          //   },
+          // );
+          // if (updatedConversations.length === 0) {
+          //   updatedConversations.push(updatedConversation);
+          // }
+          // homeDispatch({ field: 'conversations', value: updatedConversations });
+          // saveConversations(updatedConversations);
+          // homeDispatch({ field: 'messageIsStreaming', value: false });
         } else {
-          const { answer } = await response.json();
-          const updatedMessages: Message[] = [
-            ...updatedConversation.messages,
-            { role: 'assistant', content: answer },
-          ];
-          updatedConversation = {
-            ...updatedConversation,
-            messages: updatedMessages,
-          };
-          homeDispatch({
-            field: 'selectedConversation',
-            value: updateConversation,
-          });
-          saveConversation(updatedConversation);
-          const updatedConversations: Conversation[] = conversations.map(
-            (conversation) => {
-              if (conversation.id === selectedConversation.id) {
-                return updatedConversation;
-              }
-              return conversation;
-            },
-          );
-          if (updatedConversations.length === 0) {
-            updatedConversations.push(updatedConversation);
-          }
-          homeDispatch({ field: 'conversations', value: updatedConversations });
-          saveConversations(updatedConversations);
-          homeDispatch({ field: 'loading', value: false });
-          homeDispatch({ field: 'messageIsStreaming', value: false });
+          // const { answer } = await response.json();
+          // const updatedMessages: Message[] = [
+          //   ...updatedConversation.messages,
+          //   { role: 'assistant', content: answer },
+          // ];
+          // updatedConversation = {
+          //   ...updatedConversation,
+          //   messages: updatedMessages,
+          // };
+          // homeDispatch({
+          //   field: 'selectedConversation',
+          //   value: updateConversation,
+          // });
+          // saveConversation(updatedConversation);
+          // const updatedConversations: Conversation[] = conversations.map(
+          //   (conversation) => {
+          //     if (conversation.id === selectedConversation.id) {
+          //       return updatedConversation;
+          //     }
+          //     return conversation;
+          //   },
+          // );
+          // if (updatedConversations.length === 0) {
+          //   updatedConversations.push(updatedConversation);
+          // }
+          // homeDispatch({ field: 'conversations', value: updatedConversations });
+          // saveConversations(updatedConversations);
+          // homeDispatch({ field: 'loading', value: false });
+          // homeDispatch({ field: 'messageIsStreaming', value: false });
         }
       }
     },
@@ -349,6 +403,9 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
 
   return (
     <div className="relative flex-1 overflow-hidden bg-white dark:bg-[#343541]">
+      {modelError ? (
+        <ErrorMessageDiv error={modelError} />
+      ) : (
         <>
           <div
             className="max-h-full overflow-x-hidden"
@@ -359,48 +416,15 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
               <>
                 <div className="mx-auto flex flex-col space-y-5 md:space-y-10 px-3 pt-5 md:pt-12 sm:max-w-[600px]">
                   <div className="text-center text-3xl font-semibold text-gray-800 dark:text-gray-100">
-                    {/* {models.length === 0 ? (
-                      <div>
-                        <Spinner size="16px" className="mx-auto" />
-                      </div>
-                    ) : (
-                      'Chatbot UI'
-                    )} */}
+                    Chatbot UI
                   </div>
 
-                  { (
-                    <div className="flex h-full flex-col space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-600">
-                      {/* <ModelSelect /> */}
-
-                      <SystemPrompt
-                        conversation={selectedConversation}
-                        prompts={prompts}
-                        onChangePrompt={(prompt) =>
-                          handleUpdateConversation(selectedConversation, {
-                            key: 'prompt',
-                            value: prompt,
-                          })
-                        }
-                      />
-
-                      {/* <TemperatureSlider
-                        label={t('Temperature')}
-                        onChangeTemperature={(temperature) =>
-                          handleUpdateConversation(selectedConversation, {
-                            key: 'temperature',
-                            value: temperature,
-                          })
-                        }
-                      /> */}
-                    </div>
-                  )}
                 </div>
               </>
             ) : (
               <>
                 <div className="sticky top-0 z-10 flex justify-center border border-b-neutral-300 bg-neutral-100 py-2 text-sm text-neutral-500 dark:border-none dark:bg-[#444654] dark:text-neutral-200">
-                  {/* {t('Model')}: {selectedConversation?.model.name} | {t('Temp')} */}
-                  : {selectedConversation?.temperature} |
+                  :
                   <button
                     className="ml-2 cursor-pointer hover:opacity-50"
                     onClick={handleSettings}
@@ -423,7 +447,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
                 )}
 
                 {selectedConversation?.messages.map((message, index) => (
-                  <MemoizedChatMessage
+                  <ChatMessage
                     key={index}
                     message={message}
                     messageIndex={index}
@@ -456,17 +480,16 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
               handleSend(message, 0, plugin);
             }}
             onScrollDownClick={handleScrollDown}
-            onRegenerate={() => {
-              if (currentMessage) {
-                handleSend(currentMessage, 2, null);
-              }
-            }}
+            // onRegenerate={() => {
+            //   if (currentMessage) {
+            //     handleSend(currentMessage, 2, null);
+            //   }
+            // }}
             showScrollDownButton={showScrollDownButton}
           />
         </>
-
+      )}
     </div>
   );
 });
-
 Chat.displayName = 'Chat';

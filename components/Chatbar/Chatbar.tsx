@@ -36,7 +36,7 @@ export const Chatbar = () => {
   const {
     state: { conversations, showChatbar, folders, /*defaultModelId, pluginKeys*/ },
     dispatch: homeDispatch,
-    handleCreateFolder,
+    // handleCreateFolder,
     handleNewConversation,
     handleUpdateConversation,
   } = useContext(HomeContext);
@@ -232,7 +232,7 @@ export const Chatbar = () => {
         }
         toggleOpen={handleToggleChatbar}
         handleCreateItem={handleNewConversation}
-        handleCreateFolder={() => handleCreateFolder(t('New folder'), 'chat')}
+        // handleCreateFolder={() => handleCreateFolder(t('New folder'), 'chat')}
         handleDrop={handleDrop}
         footerComponent={<ChatbarSettings />}
       />

@@ -42,13 +42,11 @@ export const ChatbarSettings = () => {
         <ClearConversations onClearConversations={handleClearConversations} />
       ) : null}
 
-      <Import onImport={handleImportConversations} />
+      {/* <Import onImport={handleImportConversations} /> */}
 
-      <SidebarButton
-        text={t('Export data')}
-        icon={<IconFileExport size={18} />}
+      {/* <SidebarButton text={t('Export data')} icon={<IconFileExport size={18} />}
         onClick={() => handleExportData()}
-      />
+      /> */}
 
       {/* <SidebarButton
         text={t('Settings')}

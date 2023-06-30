@@ -31,7 +31,7 @@ const Promptbar = () => {
     // state: { prompts, defaultModelId, showPromptbar },
     state: { prompts, showPromptbar },
     dispatch: homeDispatch,
-    handleCreateFolder,
+    // handleCreateFolder,
   } = useContext(HomeContext);
 
   const {
@@ -143,7 +143,7 @@ const Promptbar = () => {
         }
         toggleOpen={handleTogglePromptbar}
         handleCreateItem={handleCreatePrompt}
-        handleCreateFolder={() => handleCreateFolder(t('New folder'), 'prompt')}
+        // handleCreateFolder={() => handleCreateFolder(t('New folder'), 'prompt')}
         handleDrop={handleDrop}
       />
     </PromptbarContext.Provider>

@@ -33,7 +33,7 @@ const Folder = ({
   handleDrop,
   folderComponent,
 }: Props) => {
-  const { handleDeleteFolder, handleUpdateFolder } = useContext(HomeContext);
+  // const { handleDeleteFolder, handleUpdateFolder } = useContext(HomeContext);
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
@@ -48,7 +48,7 @@ const Folder = ({
   };
 
   const handleRename = () => {
-    handleUpdateFolder(currentFolder.id, renameValue);
+    // handleUpdateFolder(currentFolder.id, renameValue);
     setRenameValue('');
     setIsRenaming(false);
   };
@@ -138,7 +138,7 @@ const Folder = ({
                 e.stopPropagation();
 
                 if (isDeleting) {
-                  handleDeleteFolder(currentFolder.id);
+                  // handleDeleteFolder(currentFolder.id);
                 } else if (isRenaming) {
                   handleRename();
                 }

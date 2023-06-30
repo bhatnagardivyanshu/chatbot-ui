@@ -30,7 +30,7 @@ import { VariableModal } from './VariableModal';
 
 interface Props {
   onSend: (message: Message, plugin: Plugin | null) => void;
-  onRegenerate: () => void;
+  // onRegenerate: () => void;
   onScrollDownClick: () => void;
   stopConversationRef: MutableRefObject<boolean>;
   textareaRef: MutableRefObject<HTMLTextAreaElement | null>;
@@ -39,7 +39,7 @@ interface Props {
 
 export const ChatInput = ({
   onSend,
-  onRegenerate,
+  // onRegenerate,
   onScrollDownClick,
   stopConversationRef,
   textareaRef,
@@ -71,7 +71,7 @@ export const ChatInput = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    const maxLength = selectedConversation?.model.maxLength;
+    const maxLength = 200;
 
     if (maxLength && value.length > maxLength) {
       alert(
@@ -268,7 +268,7 @@ export const ChatInput = ({
           </button>
         )}
 
-        {!messageIsStreaming &&
+        {/* {!messageIsStreaming &&
           selectedConversation &&
           selectedConversation.messages.length > 0 && (
             <button
@@ -277,7 +277,7 @@ export const ChatInput = ({
             >
               <IconRepeat size={16} /> {t('Regenerate response')}
             </button>
-          )}
+          )} */}
 
         <div className="relative mx-2 flex w-full flex-grow flex-col rounded-md border border-black/10 bg-white shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:border-gray-900/50 dark:bg-[#40414F] dark:text-white dark:shadow-[0_0_15px_rgba(0,0,0,0.10)] sm:mx-4">
           <button
@@ -285,10 +285,11 @@ export const ChatInput = ({
             onClick={() => setShowPluginSelect(!showPluginSelect)}
             onKeyDown={(e) => {}}
           >
-            {plugin ? <IconBrandGoogle size={20} /> : <IconBolt size={20} />}
+            {/* {plugin ? <IconBrandGoogle size={20} /> : <IconBolt size={20} />} */}
+            { <IconBolt size={20} />}
           </button>
 
-          {showPluginSelect && (
+          {/* {showPluginSelect && (
             <div className="absolute left-0 bottom-14 rounded bg-white dark:bg-[#343541]">
               <PluginSelect
                 plugin={plugin}
@@ -309,7 +310,7 @@ export const ChatInput = ({
                 }}
               />
             </div>
-          )}
+          )} */}
 
           <textarea
             ref={textareaRef}
@@ -325,7 +326,7 @@ export const ChatInput = ({
               }`,
             }}
             placeholder={
-              t('Type a message or type "/" to select a prompt...') || ''
+              t('Type a message') || ''
             }
             value={content}
             rows={1}
@@ -357,7 +358,7 @@ export const ChatInput = ({
             </div>
           )}
 
-          {showPromptList && filteredPrompts.length > 0 && (
+          {/* {showPromptList && filteredPrompts.length > 0 && (
             <div className="absolute bottom-12 w-full">
               <PromptList
                 activePromptIndex={activePromptIndex}
@@ -367,19 +368,19 @@ export const ChatInput = ({
                 promptListRef={promptListRef}
               />
             </div>
-          )}
+          )} */}
 
-          {isModalVisible && (
+          {/* {isModalVisible && (
             <VariableModal
               prompt={filteredPrompts[activePromptIndex]}
               variables={variables}
               onSubmit={handleSubmit}
               onClose={() => setIsModalVisible(false)}
             />
-          )}
+          )} */}
         </div>
       </div>
-      <div className="px-3 pt-2 pb-3 text-center text-[12px] text-black/50 dark:text-white/50 md:px-4 md:pt-3 md:pb-6">
+      {/* <div className="px-3 pt-2 pb-3 text-center text-[12px] text-black/50 dark:text-white/50 md:px-4 md:pt-3 md:pb-6">
         <a
           href="https://github.com/mckaywrigley/chatbot-ui"
           target="_blank"
@@ -392,7 +393,7 @@ export const ChatInput = ({
         {t(
           "Chatbot UI is an advanced chatbot kit for OpenAI's chat models aiming to mimic ChatGPT's interface and functionality.",
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

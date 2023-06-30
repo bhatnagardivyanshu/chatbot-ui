@@ -192,18 +192,18 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex, onEdit }) =
 
               {!isEditing && (
                 <div className="md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start">
-                  <button
+                  {/* <button
                     className="invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                     onClick={toggleEditing}
                   >
                     <IconEdit size={20} />
-                  </button>
-                  <button
+                  </button> */}
+                  {/* <button
                     className="invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                     onClick={handleDeleteMessage}
                   >
                     <IconTrash size={20} />
-                  </button>
+                  </button> */}
                 </div>
               )}
             </div>
