@@ -158,9 +158,9 @@ export const ConversationComponent = ({ conversation }: Props) => {
             <SidebarActionButton handleClick={handleOpenRenameModal}>
               <IconPencil size={18} />
             </SidebarActionButton>
-            <SidebarActionButton handleClick={handleOpenDeleteModal}>
+            {/* <SidebarActionButton handleClick={handleOpenDeleteModal}>
               <IconTrash size={18} />
-            </SidebarActionButton>
+            </SidebarActionButton> */}
           </div>
         )}
     </div>
